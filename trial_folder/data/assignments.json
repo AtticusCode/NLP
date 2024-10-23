@@ -1,0 +1,43 @@
+[
+    {
+        "assignment_id": 1001,
+        "idea_id": 1,
+        "reviewer_ids_mtc": [
+            101,
+            104
+        ],
+        "reviewer_ids_patent": [
+            102,
+            106
+        ],
+        "status": "assigned",
+        "comments": ""
+    },
+    {
+        "assignment_id": 1002,
+        "idea_id": 2,
+        "reviewer_ids_mtc": [
+            103,
+            107
+        ],
+        "reviewer_ids_patent": [
+            102,
+            105
+        ],
+        "status": "assigned",
+        "comments": ""
+    },
+    {
+        "assignment_id": 1003,
+        "idea_id": 25,
+        "reviewer_ids_mtc": [
+            107
+        ],
+        "reviewer_ids_patent": [
+            102,
+            106
+        ],
+        "status": "assigned",
+        "comments": ""
+    }
+]

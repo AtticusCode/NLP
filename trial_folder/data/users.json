@@ -1,0 +1,61 @@
+[
+    {
+        "id": 1,
+        "username": "john_doe",
+        "role": "user",
+        "tech_stack": [
+            "AI",
+            "Machine Learning",
+            "NLP"
+        ]
+    },
+    {
+        "id": 2,
+        "username": "jane_smith",
+        "role": "user",
+        "tech_stack": [
+            "Blockchain",
+            "FinTech",
+            "Cybersecurity"
+        ]
+    },
+    {
+        "id": 3,
+        "username": "mark_twain",
+        "role": "user",
+        "tech_stack": [
+            "Data Science",
+            "Big Data",
+            "AI"
+        ]
+    },
+    {
+        "id": 4,
+        "username": "lisa_brown",
+        "role": "user",
+        "tech_stack": [
+            "Cybersecurity",
+            "Network Security",
+            "AI"
+        ]
+    },
+    {
+        "id": 5,
+        "username": "michael_jordan",
+        "role": "admin",
+        "tech_stack": [
+            "Management",
+            "AI",
+            "Blockchain"
+        ]
+    },
+    {
+        "id": 6,
+        "username": "alice_doe",
+        "role": "admin",
+        "tech_stack": [
+            "AI",
+            "Data Science"
+        ]
+    }
+]

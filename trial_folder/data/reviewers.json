@@ -1,0 +1,110 @@
+[
+    {
+        "id": 101,
+        "name": "Alice Johnson",
+        "expertise": [
+            "AI",
+            "Machine Learning"
+        ],
+        "reviewer_type": "MTC",
+        "patent_review": true,
+        "technological_review": true,
+        "status": "available"
+    },
+    {
+        "id": 102,
+        "name": "Bob Williams",
+        "expertise": [
+            "Blockchain",
+            "FinTech"
+        ],
+        "reviewer_type": "Patent",
+        "patent_review": true,
+        "technological_review": false,
+        "status": "busy"
+    },
+    {
+        "id": 103,
+        "name": "Charlie Brown",
+        "expertise": [
+            "Cybersecurity",
+            "AI"
+        ],
+        "reviewer_type": "MTC",
+        "patent_review": false,
+        "technological_review": true,
+        "status": "available"
+    },
+    {
+        "id": 104,
+        "name": "Diana Prince",
+        "expertise": [
+            "Data Science",
+            "Big Data"
+        ],
+        "reviewer_type": "MTC",
+        "patent_review": true,
+        "technological_review": true,
+        "status": "available"
+    },
+    {
+        "id": 105,
+        "name": "Edward Norton",
+        "expertise": [
+            "Network Security",
+            "Cybersecurity"
+        ],
+        "reviewer_type": "Patent",
+        "patent_review": true,
+        "technological_review": false,
+        "status": "available"
+    },
+    {
+        "id": 106,
+        "name": "Fiona Gallagher",
+        "expertise": [
+            "AI",
+            "Blockchain"
+        ],
+        "reviewer_type": "Patent",
+        "patent_review": true,
+        "technological_review": true,
+        "status": "busy"
+    },
+    {
+        "id": 107,
+        "name": "George Martin",
+        "expertise": [
+            "FinTech",
+            "Data Science"
+        ],
+        "reviewer_type": "MTC",
+        "patent_review": false,
+        "technological_review": true,
+        "status": "busy"
+    },
+    {
+        "id": 108,
+        "name": "Helen Mirren",
+        "expertise": [
+            "AI",
+            "FinTech"
+        ],
+        "reviewer_type": "Patent",
+        "patent_review": true,
+        "technological_review": true,
+        "status": "available"
+    },
+    {
+        "id": 110,
+        "name": "Helen Mirren",
+        "expertise": [
+            "AI",
+            "FinTech"
+        ],
+        "reviewer_type": "Patent",
+        "patent_review": true,
+        "technological_review": true,
+        "status": "available"
+    }
+]

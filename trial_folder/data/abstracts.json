@@ -1,0 +1,310 @@
+[
+    {
+        "id": 1,
+        "title": "AI-Powered Credit Scoring System",
+        "problem": "Traditional credit scoring methods lack accuracy and do not consider alternative data sources.",
+        "solution": "Implement an AI-driven credit scoring system that uses machine learning models to evaluate borrowers' creditworthiness based on both traditional financial data and alternative data sources, such as social media behavior and utility bill payments.",
+        "team_suggesting": "Finance Team A",
+        "file_type": "pdf",
+        "sid": "S001",
+        "technology": [
+            "AI",
+            "Machine Learning"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 2,
+        "title": "Blockchain-Based Cross-Border Payment System",
+        "problem": "Cross-border transactions are slow and costly due to intermediaries.",
+        "solution": "Develop a decentralized payment system leveraging blockchain technology to enable faster, cheaper, and more transparent cross-border transactions, utilizing smart contracts for settlement.",
+        "team_suggesting": "Finance Team B",
+        "file_type": "docx",
+        "sid": "S002",
+        "technology": [
+            "Blockchain",
+            "FinTech"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 3,
+        "title": "Automated Financial Portfolio Management",
+        "problem": "Manual portfolio management is inefficient and cannot scale with increasing data.",
+        "solution": "Create an AI-driven portfolio management system that dynamically adjusts asset allocations based on market trends and user preferences, utilizing quantitative analysis and real-time data integration.",
+        "team_suggesting": "Finance Team C",
+        "file_type": "pdf",
+        "sid": "S003",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Data Science"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 4,
+        "title": "Real-Time Fraud Detection in Banking",
+        "problem": "Fraudulent activities in banking transactions are difficult to detect in real-time using traditional methods.",
+        "solution": "Implement a real-time fraud detection system that applies machine learning techniques to analyze transaction patterns, detect anomalies, and reduce false positives, thereby enhancing fraud prevention measures.",
+        "team_suggesting": "Finance Team D",
+        "file_type": "pdf",
+        "sid": "S004",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Cybersecurity"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 5,
+        "title": "Decentralized Finance (DeFi) Lending Platform",
+        "problem": "Traditional lending platforms rely heavily on intermediaries, leading to higher costs and slower processing times.",
+        "solution": "Develop a decentralized lending platform using blockchain technology that enables peer-to-peer lending and borrowing of digital assets without the need for intermediaries, utilizing smart contracts to automate loan agreements and settlements.",
+        "team_suggesting": "Finance Team E",
+        "file_type": "docx",
+        "sid": "S005",
+        "technology": [
+            "Blockchain",
+            "FinTech"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 6,
+        "title": "AI-Powered Personal Finance Assistant",
+        "problem": "Users find it challenging to manage their personal finances effectively without personalized guidance.",
+        "solution": "Develop a chatbot-based financial assistant that uses natural language processing (NLP) and AI to help users manage budgets, track expenses, optimize savings, and achieve personalized financial goals through interactive conversations.",
+        "team_suggesting": "Finance Team F",
+        "file_type": "pdf",
+        "sid": "S006",
+        "technology": [
+            "AI",
+            "NLP",
+            "Machine Learning"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 7,
+        "title": "Predictive Analytics for Stock Market Forecasting",
+        "problem": "Accurate stock market forecasting remains a significant challenge due to the dynamic and volatile nature of markets.",
+        "solution": "Develop an AI-powered predictive analytics model that leverages historical stock data, macroeconomic indicators, and sentiment analysis from news sources to forecast future market trends, aiding investors in making informed decisions.",
+        "team_suggesting": "Finance Team G",
+        "file_type": "pdf",
+        "sid": "S007",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Data Science"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 8,
+        "title": "Blockchain-Based Identity Verification System",
+        "problem": "Identity theft and fraudulent activities in financial transactions are prevalent due to inadequate verification methods.",
+        "solution": "Implement a secure identity verification system using blockchain technology to provide immutable and decentralized identity records, ensuring data integrity and privacy while facilitating easy access for authorized financial institutions.",
+        "team_suggesting": "Finance Team H",
+        "file_type": "docx",
+        "sid": "S008",
+        "technology": [
+            "Blockchain",
+            "FinTech",
+            "Cybersecurity"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 9,
+        "title": "AI-Driven Insurance Underwriting",
+        "problem": "Traditional insurance underwriting processes are time-consuming and may lack precision in risk assessment.",
+        "solution": "Develop an AI-based underwriting system that automates the evaluation of insurance applications by analyzing historical claims data, risk factors, and customer profiles to offer more accurate and personalized policy recommendations.",
+        "team_suggesting": "Finance Team I",
+        "file_type": "pdf",
+        "sid": "S009",
+        "technology": [
+            "AI",
+            "Machine Learning"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 10,
+        "title": "Digital Wallet with Biometric Security",
+        "problem": "Digital wallets are susceptible to unauthorized access and security breaches.",
+        "solution": "Create a digital wallet application that integrates biometric authentication methods, such as facial recognition and fingerprint scanning, to provide secure, convenient, and fast access to digital assets, enhancing user trust and security.",
+        "team_suggesting": "Finance Team J",
+        "file_type": "pdf",
+        "sid": "S010",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Cybersecurity"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 11,
+        "title": "Smart Contract-Based Derivatives Trading",
+        "problem": "Trading derivatives involves significant counterparty risk and lacks transparency.",
+        "solution": "Develop a trading platform for financial derivatives that uses smart contracts to automate trade execution, settlement, and risk management, ensuring transparency, reducing counterparty risk, and increasing operational efficiency.",
+        "team_suggesting": "Finance Team K",
+        "file_type": "docx",
+        "sid": "S011",
+        "technology": [
+            "Blockchain",
+            "FinTech"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 12,
+        "title": "AI-Powered Anti-Money Laundering (AML) System",
+        "problem": "Detecting and preventing money laundering activities in financial transactions is challenging due to the complexity and volume of data.",
+        "solution": "Implement an AI-based AML solution that utilizes machine learning models to analyze transaction patterns, detect suspicious activities, monitor real-time transactions, and flag potential money laundering risks, thereby enhancing compliance and reducing financial crime.",
+        "team_suggesting": "Finance Team L",
+        "file_type": "pdf",
+        "sid": "S012",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Cybersecurity"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 13,
+        "title": "Crowdfunding Platform with Blockchain Integration",
+        "problem": "Traditional crowdfunding platforms lack transparency and are prone to misuse of funds.",
+        "solution": "Develop a crowdfunding platform that uses blockchain technology to ensure secure, transparent, and traceable funding for projects, enabling investors to verify the use of funds through immutable smart contracts and reducing the risk of fraud.",
+        "team_suggesting": "Finance Team M",
+        "file_type": "docx",
+        "sid": "S013",
+        "technology": [
+            "Blockchain",
+            "FinTech"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 14,
+        "title": "AI-Based Loan Approval System",
+        "problem": "Manual loan approval processes are time-consuming and prone to bias, leading to inefficiencies and unfair lending practices.",
+        "solution": "Develop a machine learning model that predicts the likelihood of loan repayment by analyzing financial statements, credit scores, and alternative data sources, enabling faster, automated loan approvals while minimizing human bias and improving accuracy.",
+        "team_suggesting": "Finance Team N",
+        "file_type": "pdf",
+        "sid": "S014",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Data Science"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 15,
+        "title": "AI-Driven Financial Risk Management System",
+        "problem": "Identifying and mitigating financial risks in real-time is challenging with traditional risk management systems.",
+        "solution": "Implement an AI-powered financial risk management system that analyzes large datasets, including market data, economic trends, and customer behaviors, to identify potential risks and provide actionable insights for risk mitigation in financial institutions.",
+        "team_suggesting": "Finance Team O",
+        "file_type": "pdf",
+        "sid": "S015",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Data Science"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 16,
+        "title": "AI-Based Cryptocurrency Trading Bot",
+        "problem": "Manual trading in cryptocurrency markets is inefficient and cannot capitalize on high-frequency trading opportunities.",
+        "solution": "Develop an AI-powered trading bot designed for cryptocurrency markets that executes high-frequency trades based on real-time market data, sentiment analysis, and algorithmic strategies, maximizing profitability and reducing manual intervention.",
+        "team_suggesting": "Finance Team P",
+        "file_type": "docx",
+        "sid": "S016",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Blockchain"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 17,
+        "title": "AI-Powered Robo-Advisory Platform",
+        "problem": "Individual investors lack personalized investment advice and face high management fees with traditional advisory services.",
+        "solution": "Create a robo-advisory platform that uses AI to provide personalized investment advice based on user profiles, risk tolerance, and financial goals, automating the investment management process and reducing costs for individual investors.",
+        "team_suggesting": "Finance Team Q",
+        "file_type": "pdf",
+        "sid": "S017",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "FinTech"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 18,
+        "title": "RegTech Compliance Monitoring System",
+        "problem": "Financial institutions struggle to keep up with evolving regulatory requirements, leading to compliance risks.",
+        "solution": "Develop a regulatory technology (RegTech) platform that uses AI to monitor compliance requirements, analyze regulatory changes, and ensure financial institutions adhere to evolving regulations through automated reporting and alert systems.",
+        "team_suggesting": "Finance Team R",
+        "file_type": "pdf",
+        "sid": "S018",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "FinTech"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 19,
+        "title": "Blockchain-Based Smart Insurance Contracts",
+        "problem": "Insurance claims processing is often slow and lacks transparency, leading to customer dissatisfaction.",
+        "solution": "Create an insurance platform that utilizes blockchain-based smart contracts to automate claims processing, enabling faster and transparent settlements with minimal human intervention, thereby enhancing customer trust and operational efficiency.",
+        "team_suggesting": "Finance Team S",
+        "file_type": "docx",
+        "sid": "S019",
+        "technology": [
+            "Blockchain",
+            "FinTech",
+            "AI"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 20,
+        "title": "AI-Powered Stock Trading Assistant",
+        "problem": "Investors require timely and actionable insights to make informed trading decisions in volatile stock markets.",
+        "solution": "Develop an AI-driven stock trading assistant that uses natural language processing (NLP) to analyze market news, sentiment, and financial reports, providing users with real-time trading insights and recommendations to optimize investment strategies.",
+        "team_suggesting": "Finance Team T",
+        "file_type": "pdf",
+        "sid": "S020",
+        "technology": [
+            "AI",
+            "NLP",
+            "Machine Learning"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 25,
+        "title": "Decentralized Finance (DeFi) Lending Platform",
+        "problem": "Traditional lending platforms rely heavily on intermediaries, leading to higher costs and slower processing times.",
+        "solution": "Develop a decentralized lending platform using blockchain technology that enables peer-to-peer lending and borrowing of digital assets without the need for intermediaries, utilizing smart contracts to automate loan agreements and settlements.",
+        "team_suggesting": "Finance Team E",
+        "file_type": "docx",
+        "sid": "S005",
+        "technology": [
+            "Blockchain",
+            "FinTech"
+        ],
+        "status": "granted"
+    }
+]
