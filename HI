@@ -1,23 +1,16 @@
-http://127.0.0.1:8000/api/ideas
+http://127.0.0.1:8000/api/search
 
 {
-    "id": 29,
-    "title": "Blockchain-Based Secure Voting System",
-    "problem": "Traditional voting systems are vulnerable to fraud, tampering, and lack transparency, undermining public trust.",
-    "solution": "Develop a blockchain-based voting platform that ensures end-to-end verifiability, immutability of votes, and enhanced security to prevent fraud and tampering.",
-    "team_suggesting": "Security Innovations Team",
-    "file_type": "pdf",
-    "sid": "S022",
-    "technology": [],
-    "status": "submitted"
+    "input_abstract": "Using machine learning algorithms to analyze  images for fraud detection.",
+    "filter_status": "all",
+    "top_k": 5
 }
 
 
 
-http://127.0.0.1:8000/api/search
+
+http://127.0.0.1:8000/api/assign/mtc
 
 {
-    "input_abstract": "This research investigates the application of artificial intelligence and machine learning algorithms to improve the accuracy and efficiency of credit scoring systems. By integrating big data analytics and natural language processing, the proposed model assesses borrower creditworthiness using both traditional financial metrics and alternative data sources such as social media behavior and transaction history. The system aims to reduce bias and enhance decision-making processes in financial institutions.",
-    "filter_status": "all",
-    "top_k": 5
+    "input_abstract": "Using machine learning to predict supply chain disruptions."
 }
