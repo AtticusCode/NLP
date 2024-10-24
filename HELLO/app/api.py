@@ -16,6 +16,7 @@ import os
 import numpy as np
 import logging
 import yake
+from sklearn.metrics.pairwise import cosine_similarity
 
 router = APIRouter()
 
@@ -52,12 +53,11 @@ abstract_texts = [f"{idea.problem} {idea.solution}" for idea in ideas]
 # Initialize EmbeddingModel with the corpus
 embedding_model = EmbeddingModel(corpus_texts=abstract_texts)
 
-# Extract topics from all abstracts
-topics = embedding_model.extract_topics(abstract_texts)
-topic_embeddings = embedding_model.get_topic_embeddings(topics)
+# Get embeddings for the existing abstracts
+abstract_embeddings = embedding_model.encode(abstract_texts)
 
-# Initialize matcher with topic embeddings
-matcher = AbstractMatcher(ideas, topic_embeddings, embedding_model)
+# Initialize matcher with abstract embeddings
+matcher = AbstractMatcher(ideas, abstract_embeddings, embedding_model)
 
 # Function to extract technologies using YAKE
 def extract_technologies_semantic(text: str) -> List[str]:
@@ -115,7 +115,10 @@ def search_abstract(request: SearchRequest):
     if not request.input_abstract:
         raise HTTPException(status_code=400, detail="Input abstract is required.")
     
+    # Encode the input abstract
     input_embedding = embedding_model.encode([request.input_abstract])[0]
+    
+    # Search for similar abstracts
     results = matcher.search(request, input_embedding)
     
     return SearchResponse(results=results)
@@ -123,17 +126,137 @@ def search_abstract(request: SearchRequest):
 # Endpoint to assign MTC reviewers
 @router.post("/assign/mtc", response_model=Assignment)
 def assign_mtc(request: SearchRequest):
+    if not request.input_abstract:
+        raise HTTPException(status_code=400, detail="Input abstract is required.")
+    
+    # Extract topics from the abstract
     idea_topics = embedding_model.extract_topics([request.input_abstract])
+    
+    # Extract technologies using YAKE
+    extracted_technologies = extract_technologies_semantic(request.input_abstract)
+    
+    # Create a new Idea
+    new_idea_id = max([idea.id for idea in ideas], default=0) + 1
+    new_idea = Idea(
+        id=new_idea_id,
+        title=f"Idea {new_idea_id}",
+        problem=request.input_abstract.split('.')[0],  # Simplistic extraction
+        solution=request.input_abstract,  # Full abstract as solution
+        team_suggesting="Team Assigned MTC",  # Default value
+        file_type="txt",  # Default value
+        sid=f"S{new_idea_id:03d}",
+        technology=extracted_technologies,
+        status="submitted"
+    )
+    
+    # Append the new idea to ideas list and save to JSON
+    ideas.append(new_idea)
+    ideas_data.append(new_idea.dict())
+    save_data(DATA_PATH_ABSTRACTS, ideas_data)
+    
+    # Load reviewers data
     reviewers_data = load_data(DATA_PATH_REVIEWERS)
     reviewers = [Reviewer(**rev) for rev in reviewers_data]
+    
+    # Assign MTC reviewers
     assigned_mtc_reviewers = assign_reviewers(idea_topics, reviewers, reviewer_type="MTC")
-    return {"reviewer_ids_mtc": assigned_mtc_reviewers}
+    
+    if not assigned_mtc_reviewers:
+        raise HTTPException(status_code=400, detail="No available MTC reviewers found.")
+    
+    # Create a new assignment
+    assignments_data = load_data(DATA_PATH_ASSIGNMENTS)
+    assignments = [Assignment(**assign) for assign in assignments_data]
+    new_assignment = create_assignment(
+        idea_id=new_idea_id,
+        reviewer_ids_mtc=assigned_mtc_reviewers,
+        reviewer_ids_e2=[],
+        assignments=assignments
+    )
+    
+    # Append and save the new assignment
+    assignments_data.append(new_assignment.dict())
+    save_data(DATA_PATH_ASSIGNMENTS, assignments_data)
+    
+    # Update reviewers' status to 'busy' and save
+    for reviewer in reviewers:
+        if reviewer.id in assigned_mtc_reviewers:
+            reviewer.status = "busy"
+    
+    # Save updated reviewers data
+    updated_reviewers = [rev.dict() for rev in reviewers]
+    save_data(DATA_PATH_REVIEWERS, updated_reviewers)
+    
+    logger.info(f"Assigned MTC Reviewers: {assigned_mtc_reviewers}")
+    logger.info(f"Created Assignment ID: {new_assignment.assignment_id} for Idea ID: {new_idea_id}")
+    
+    return new_assignment
 
 # Endpoint to assign E2 reviewers
 @router.post("/assign/e2", response_model=Assignment)
 def assign_e2(request: SearchRequest):
+    if not request.input_abstract:
+        raise HTTPException(status_code=400, detail="Input abstract is required.")
+    
+    # Extract topics from the abstract
     idea_topics = embedding_model.extract_topics([request.input_abstract])
+    
+    # Extract technologies using YAKE
+    extracted_technologies = extract_technologies_semantic(request.input_abstract)
+    
+    # Create a new Idea
+    new_idea_id = max([idea.id for idea in ideas], default=0) + 1
+    new_idea = Idea(
+        id=new_idea_id,
+        title=f"Idea {new_idea_id}",
+        problem=request.input_abstract.split('.')[0],  # Simplistic extraction
+        solution=request.input_abstract,  # Full abstract as solution
+        team_suggesting="Team Assigned E2",  # Default value
+        file_type="txt",  # Default value
+        sid=f"S{new_idea_id:03d}",
+        technology=extracted_technologies,
+        status="submitted"
+    )
+    
+    # Append the new idea to ideas list and save to JSON
+    ideas.append(new_idea)
+    ideas_data.append(new_idea.dict())
+    save_data(DATA_PATH_ABSTRACTS, ideas_data)
+    
+    # Load reviewers data
     reviewers_data = load_data(DATA_PATH_REVIEWERS)
     reviewers = [Reviewer(**rev) for rev in reviewers_data]
+    
+    # Assign E2 reviewers
     assigned_e2_reviewers = assign_reviewers(idea_topics, reviewers, reviewer_type="E2")
-    return {"reviewer_ids_e2": assigned_e2_reviewers}
+    
+    if not assigned_e2_reviewers:
+        raise HTTPException(status_code=400, detail="No available E2 reviewers found.")
+    
+    # Create a new assignment
+    assignments_data = load_data(DATA_PATH_ASSIGNMENTS)
+    assignments = [Assignment(**assign) for assign in assignments_data]
+    new_assignment = create_assignment(
+        idea_id=new_idea_id,
+        reviewer_ids_mtc=[],
+        reviewer_ids_e2=assigned_e2_reviewers,
+        assignments=assignments
+    )
+    
+    # Append and save the new assignment
+    assignments_data.append(new_assignment.dict())
+    save_data(DATA_PATH_ASSIGNMENTS, assignments_data)
+    
+    # Update reviewers' status to 'busy' and save
+    for reviewer in reviewers:
+        if reviewer.id in assigned_e2_reviewers:
+            reviewer.status = "busy"
+    
+    # Save updated reviewers data
+    updated_reviewers = [rev.dict() for rev in reviewers]
+    save_data(DATA_PATH_REVIEWERS, updated_reviewers)
+    
+    logger.info(f"Assigned E2 Reviewers: {assigned_e2_reviewers}")
+    logger.info(f"Created Assignment ID: {new_assignment.assignment_id} for Idea ID: {new_idea_id}")
+    
+    return new_assignment
