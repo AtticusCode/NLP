@@ -53,3 +53,8 @@ class Assignment(BaseModel):
     reviewer_ids_patent: List[int]
     status: str  # "assigned", "completed"
     comments: Optional[str] = ""
+
+class TopicModel(BaseModel):
+    topic_id: int
+    keywords: List[str]
+    description: Optional[str] = ""
