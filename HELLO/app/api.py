@@ -18,6 +18,8 @@ import spacy
 import logging
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
 
 router = APIRouter()
 
@@ -34,6 +36,9 @@ nlp = spacy.load("en_core_web_md")
 
 # Initialize SentenceTransformer model
 sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Initialize EmbeddingModel for topic extraction
+embedding_model = EmbeddingModel()
 
 # Paths to JSON files
 DATA_PATH_ABSTRACTS = os.path.join(os.path.dirname(__file__), '..', 'data', 'ideas.json')
@@ -54,13 +59,13 @@ def save_data(file_path, data):
 ideas_data = load_data(DATA_PATH_ABSTRACTS)
 ideas = [Idea(**item) for item in ideas_data]
 
-# Initialize embedding model and generate embeddings
-embedding_model = EmbeddingModel()
+# Extract topics from all abstracts
 abstract_texts = [f"{idea.problem} {idea.solution}" for idea in ideas]
-embeddings = embedding_model.encode(abstract_texts)
+topics = embedding_model.extract_topics(abstract_texts)
+topic_embeddings = embedding_model.get_topic_embeddings(topics)
 
-# Initialize matcher
-matcher = AbstractMatcher(ideas, embeddings)
+# Initialize matcher with topic embeddings
+matcher = AbstractMatcher(ideas, topic_embeddings, embedding_model)
 
 # Function to extract technologies semantically from text
 def extract_technologies_semantic(text: str) -> List[str]:
@@ -71,11 +76,13 @@ def extract_technologies_semantic(text: str) -> List[str]:
         technologies.add(tech_candidate)
     return list(technologies)
 
-# Function to compute similarity between idea technologies and reviewer expertise
-def compute_similarity(idea_tech: List[str], reviewers: List[Reviewer]) -> List[dict]:
-    # Concatenate idea technologies into a single string
-    idea_tech_str = ' '.join(idea_tech)
-    idea_embedding = sentence_model.encode([idea_tech_str])[0].reshape(1, -1)
+# Function to compute similarity between idea topics and reviewer expertise
+def compute_similarity_with_topics(idea_topics: List[str], reviewers: List[Reviewer]) -> List[dict]:
+    # Encode idea topics
+    idea_embeddings = sentence_model.encode(idea_topics)
+    
+    # Concatenate all idea topic embeddings
+    idea_embedding = np.mean(idea_embeddings, axis=0).reshape(1, -1)
     
     similarities = []
     for reviewer in reviewers:
@@ -157,21 +164,28 @@ def add_idea(idea: Idea):
     idea.technology = extracted_technologies
     logger.info(f"Extracted technologies: {idea.technology}")
     
+    # Extract topics
+    extracted_topics = embedding_model.extract_topics([combined_text])
+    idea_topics = extracted_topics  # List of topics for the new idea
+    logger.info(f"Extracted topics: {idea_topics}")
+    
+    # Assign topics to the idea (you may want to store them if necessary)
+    
     # Append the idea with extracted technologies
     ideas_data.append(idea.dict())
     save_data(DATA_PATH_ABSTRACTS, ideas_data)
     logger.info(f"Saved idea ID {idea.id} to ideas.json")
     
-    # Auto-assign MTC reviewers only if the idea status is "submitted"
+    # Auto-assign reviewers based on topics
     if idea.status.lower() == "submitted":
-        logger.info(f"Auto-assigning MTC reviewers for Idea ID {idea.id}")
+        logger.info(f"Auto-assigning reviewers for Idea ID {idea.id}")
         reviewers_data = load_data(DATA_PATH_REVIEWERS)
         reviewers = [Reviewer(**rev) for rev in reviewers_data]
         assignments_data = load_data(DATA_PATH_ASSIGNMENTS)
         assignments = [Assignment(**assign) for assign in assignments_data]
         
-        # Compute similarity scores
-        similarities = compute_similarity(idea.technology, reviewers)
+        # Compute similarity scores based on topics
+        similarities = compute_similarity_with_topics(idea_topics, reviewers)
         
         # Sort reviewers by similarity in descending order
         similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
@@ -235,8 +249,8 @@ def assign_mtc_reviewers(idea_id: int):
     # Create Idea model instance
     idea_model = Idea(**idea)
     
-    # Compute similarity scores
-    similarities = compute_similarity(idea_model.technology, reviewers)
+    # Compute similarity scores based on topics
+    similarities = compute_similarity_with_topics([f"{idea_model.problem} {idea_model.solution}"], reviewers)
     
     # Sort reviewers by similarity in descending order
     similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
@@ -298,8 +312,8 @@ def assign_patent_reviewers(idea_id: int):
     # Create Idea model instance
     idea_model = Idea(**idea)
     
-    # Compute similarity scores
-    similarities = compute_similarity(idea_model.technology, reviewers)
+    # Compute similarity scores based on topics
+    similarities = compute_similarity_with_topics([f"{idea_model.problem} {idea_model.solution}"], reviewers)
     
     # Sort reviewers by similarity in descending order
     similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
@@ -334,5 +348,68 @@ def assign_patent_reviewers(idea_id: int):
                     rev["status"] = "busy"
     save_data(DATA_PATH_REVIEWERS, reviewers_data)
     logger.info(f"Updated status of assigned Patent reviewers to 'busy'")
+    
+    return new_assignment
+
+# Additional Endpoint: Assign E2 Reviewers (Assuming E2 is another reviewer type)
+@router.post("/assignments/e2", response_model=Assignment)
+def assign_e2_reviewers(idea_id: int):
+    logger.info(f"Assigning E2 reviewers for Idea ID {idea_id}")
+    # Load necessary data
+    ideas_data = load_data(DATA_PATH_ABSTRACTS)
+    idea = next((item for item in ideas_data if item["id"] == idea_id), None)
+    if not idea:
+        logger.error(f"Idea with ID {idea_id} not found.")
+        raise HTTPException(status_code=404, detail="Idea not found.")
+    
+    if idea["status"].lower() != "submitted":
+        logger.error(f"Idea ID {idea_id} is not in 'submitted' status.")
+        raise HTTPException(status_code=400, detail="Only submitted ideas can be assigned E2 reviewers.")
+    
+    reviewers_data = load_data(DATA_PATH_REVIEWERS)
+    reviewers = [Reviewer(**rev) for rev in reviewers_data]
+    
+    assignments_data = load_data(DATA_PATH_ASSIGNMENTS)
+    assignments = [Assignment(**assign) for assign in assignments_data]
+    
+    # Create Idea model instance
+    idea_model = Idea(**idea)
+    
+    # Compute similarity scores based on topics
+    similarities = compute_similarity_with_topics([f"{idea_model.problem} {idea_model.solution}"], reviewers)
+    
+    # Sort reviewers by similarity in descending order
+    similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
+    
+    # Select top K E2 reviewers (assuming E2 is another type)
+    top_k = 2
+    assigned_e2_reviewers = []
+    for sim in similarities_sorted:
+        reviewer = next((r for r in reviewers if r.id == sim["reviewer_id"]), None)
+        if reviewer and reviewer.reviewer_type.lower() == "e2" and reviewer.status.lower() == "available":
+            assigned_e2_reviewers.append(reviewer.id)
+            if len(assigned_e2_reviewers) >= top_k:
+                break
+    
+    logger.info(f"Assigned E2 Reviewer IDs: {assigned_e2_reviewers}")
+    
+    if not assigned_e2_reviewers:
+        logger.error("No available E2 reviewers found.")
+        raise HTTPException(status_code=400, detail="No available E2 reviewers found.")
+    
+    # Create and save assignment
+    new_assignment = create_assignment(idea_model.id, [], assigned_e2_reviewers, assignments)
+    assignments_data.append(new_assignment.dict())
+    save_data(DATA_PATH_ASSIGNMENTS, assignments_data)
+    logger.info(f"Created new assignment ID {new_assignment.assignment_id} for Idea ID {idea_model.id} with E2 reviewers {assigned_e2_reviewers}")
+    
+    # Update reviewers' status to 'busy'
+    for reviewer in reviewers:
+        if reviewer.id in assigned_e2_reviewers:
+            for rev in reviewers_data:
+                if rev["id"] == reviewer.id:
+                    rev["status"] = "busy"
+    save_data(DATA_PATH_REVIEWERS, reviewers_data)
+    logger.info(f"Updated status of assigned E2 reviewers to 'busy'")
     
     return new_assignment
