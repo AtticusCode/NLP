@@ -48,4 +48,4 @@ class AbstractMatcher:
             )
             results.append(result_item)
 
-        return results.
+        return results
