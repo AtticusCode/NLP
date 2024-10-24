@@ -14,12 +14,17 @@ from .assignment import (
 import json
 import os
 import numpy as np
-import spacy
 import logging
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
+from rake_nltk import Rake  # Import RAKE
+
+import nltk
+nltk.download('stopwords')
+
+# Initialize RAKE for keyword extraction
+rake = Rake()
 
 router = APIRouter()
 
@@ -30,12 +35,6 @@ handler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-# Load spaCy English model with word vectors
-nlp = spacy.load("en_core_web_md")
-
-# Initialize SentenceTransformer model
-sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Initialize EmbeddingModel for topic extraction
 embedding_model = EmbeddingModel()
@@ -67,36 +66,37 @@ topic_embeddings = embedding_model.get_topic_embeddings(topics)
 # Initialize matcher with topic embeddings
 matcher = AbstractMatcher(ideas, topic_embeddings, embedding_model)
 
-# Function to extract technologies semantically from text
+# Function to extract technologies using RAKE
 def extract_technologies_semantic(text: str) -> List[str]:
-    doc = nlp(text)
-    technologies = set()
-    for chunk in doc.noun_chunks:
-        tech_candidate = chunk.text.lower().strip()
-        technologies.add(tech_candidate)
-    return list(technologies)
+    rake.extract_keywords_from_text(text)
+    keywords = rake.get_ranked_phrases()
+    # Optionally, limit to top N keywords
+    return keywords[:10]  # Adjust the number as needed
 
 # Function to compute similarity between idea topics and reviewer expertise
 def compute_similarity_with_topics(idea_topics: List[str], reviewers: List[Reviewer]) -> List[dict]:
-    # Encode idea topics
-    idea_embeddings = sentence_model.encode(idea_topics)
+    # Initialize TfidfVectorizer
+    vectorizer = TfidfVectorizer(stop_words='english')
     
-    # Concatenate all idea topic embeddings
-    idea_embedding = np.mean(idea_embeddings, axis=0).reshape(1, -1)
+    # Fit and transform idea topics and reviewer expertise
+    all_texts = idea_topics + [' '.join(reviewer.expertise) for reviewer in reviewers]
+    tfidf_matrix = vectorizer.fit_transform(all_texts)
     
-    similarities = []
-    for reviewer in reviewers:
-        # Concatenate reviewer's expertise into a single string
-        reviewer_expertise_str = ' '.join(reviewer.expertise)
-        reviewer_embedding = sentence_model.encode([reviewer_expertise_str])[0].reshape(1, -1)
-        
-        # Compute cosine similarity
-        similarity = cosine_similarity(idea_embedding, reviewer_embedding)[0][0]
-        similarities.append({
-            "reviewer_id": reviewer.id,
-            "similarity": similarity
-        })
-    return similarities
+    # Compute cosine similarity between idea topics and reviewers
+    idea_tfidf = tfidf_matrix[:len(idea_topics)]
+    reviewer_tfidf = tfidf_matrix[len(idea_topics):]
+    
+    similarity_matrix = cosine_similarity(idea_tfidf, reviewer_tfidf)
+    
+    # Aggregate similarity scores for each reviewer
+    similarities = similarity_matrix.mean(axis=0)
+    
+    similarity_list = [
+        {"reviewer_id": reviewer.id, "similarity": similarity}
+        for reviewer, similarity in zip(reviewers, similarities)
+    ]
+    
+    return similarity_list
 
 # Search Endpoint
 @router.post("/search", response_model=SearchResponse)
@@ -104,11 +104,11 @@ def search_abstract(request: SearchRequest):
     if not request.input_abstract:
         raise HTTPException(status_code=400, detail="Input abstract is required.")
     
-    # Generate embedding for input abstract
-    input_embedding = embedding_model.encode([request.input_abstract])[0]
+    # Generate TF-IDF vector for input abstract
+    input_vector = embedding_model.vectorizer.transform([request.input_abstract])
     
-    # Perform search
-    results = matcher.search(request, input_embedding)
+    # Perform search using NMF components
+    results = matcher.search(request, input_vector)
     
     return SearchResponse(results=results)
 
@@ -159,17 +159,15 @@ def add_idea(idea: Idea):
     # Combine problem and solution to form the abstract
     combined_text = f"{idea.problem} {idea.solution}"
     
-    # Extract technologies semantically
+    # Extract technologies using RAKE
     extracted_technologies = extract_technologies_semantic(combined_text)
     idea.technology = extracted_technologies
     logger.info(f"Extracted technologies: {idea.technology}")
     
-    # Extract topics
+    # Extract topics using NMF
     extracted_topics = embedding_model.extract_topics([combined_text])
     idea_topics = extracted_topics  # List of topics for the new idea
     logger.info(f"Extracted topics: {idea_topics}")
-    
-    # Assign topics to the idea (you may want to store them if necessary)
     
     # Append the idea with extracted technologies
     ideas_data.append(idea.dict())
@@ -381,7 +379,7 @@ def assign_e2_reviewers(idea_id: int):
     # Sort reviewers by similarity in descending order
     similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
     
-    # Select top K E2 reviewers (assuming E2 is another type)
+    # Select top K E2 reviewers
     top_k = 2
     assigned_e2_reviewers = []
     for sim in similarities_sorted:
