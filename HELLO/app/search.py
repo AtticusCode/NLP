@@ -4,11 +4,13 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from typing import List
 from .models import Idea, SearchRequest, SearchResponseItem
+from .embedding import EmbeddingModel
 
 class AbstractMatcher:
-    def __init__(self, ideas: List[Idea], embeddings: np.ndarray):
+    def __init__(self, ideas: List[Idea], embeddings: np.ndarray, embedding_model: EmbeddingModel):
         self.ideas = ideas
         self.embeddings = embeddings
+        self.embedding_model = embedding_model
 
     def search(self, request: SearchRequest, input_embedding: np.ndarray) -> List[SearchResponseItem]:
         # Calculate cosine similarity
