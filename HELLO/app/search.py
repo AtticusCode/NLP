@@ -8,11 +8,17 @@ from .embedding import EmbeddingModel
 
 class AbstractMatcher:
     def __init__(self, ideas: List[Idea], embeddings: np.ndarray, embedding_model: EmbeddingModel):
+        """
+        Initializes the AbstractMatcher with existing ideas and their embeddings.
+        """
         self.ideas = ideas
         self.embeddings = embeddings
         self.embedding_model = embedding_model
 
     def search(self, request: SearchRequest, input_embedding: np.ndarray) -> List[SearchResponseItem]:
+        """
+        Searches for similar abstracts based on cosine similarity.
+        """
         # Calculate cosine similarity
         similarities = cosine_similarity([input_embedding], self.embeddings)[0]
         
