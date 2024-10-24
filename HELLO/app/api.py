@@ -1,3 +1,5 @@
+# app/api.py
+
 from fastapi import APIRouter, HTTPException
 from typing import List
 from .models import (
@@ -25,9 +27,6 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# Initialize EmbeddingModel for topic extraction
-embedding_model = EmbeddingModel()
-
 # Paths to JSON files
 DATA_PATH_ABSTRACTS = os.path.join(os.path.dirname(__file__), '..', 'data', 'ideas.json')
 DATA_PATH_USERS = os.path.join(os.path.dirname(__file__), '..', 'data', 'users.json')
@@ -47,8 +46,13 @@ def save_data(file_path, data):
 ideas_data = load_data(DATA_PATH_ABSTRACTS)
 ideas = [Idea(**item) for item in ideas_data]
 
-# Extract topics from all abstracts
+# Combine all abstracts for vectorizer fitting
 abstract_texts = [f"{idea.problem} {idea.solution}" for idea in ideas]
+
+# Initialize EmbeddingModel with the corpus
+embedding_model = EmbeddingModel(corpus_texts=abstract_texts)
+
+# Extract topics from all abstracts
 topics = embedding_model.extract_topics(abstract_texts)
 topic_embeddings = embedding_model.get_topic_embeddings(topics)
 
@@ -74,16 +78,13 @@ def extract_technologies_semantic(text: str) -> List[str]:
 
 # Function to compute similarity between idea topics and reviewer expertise
 def compute_similarity_with_topics(idea_topics: List[str], reviewers: List[Reviewer]) -> List[dict]:
-    # Initialize TfidfVectorizer
-    vectorizer = TfidfVectorizer(stop_words='english')
+    # Use the existing vectorizer
+    vectorizer = embedding_model.vectorizer
     
-    # Fit and transform idea topics and reviewer expertise
-    all_texts = idea_topics + [' '.join(reviewer.expertise) for reviewer in reviewers]
-    tfidf_matrix = vectorizer.fit_transform(all_texts)
-    
-    # Compute cosine similarity between idea topics and reviewers
-    idea_tfidf = tfidf_matrix[:len(idea_topics)]
-    reviewer_tfidf = tfidf_matrix[len(idea_topics):]
+    # Transform idea topics and reviewer expertise
+    idea_tfidf = vectorizer.transform(idea_topics)
+    reviewer_texts = [' '.join(reviewer.expertise) for reviewer in reviewers]
+    reviewer_tfidf = vectorizer.transform(reviewer_texts)
     
     similarity_matrix = cosine_similarity(idea_tfidf, reviewer_tfidf)
     similarities = similarity_matrix.mean(axis=0)
@@ -95,19 +96,18 @@ def compute_similarity_with_topics(idea_topics: List[str], reviewers: List[Revie
     
     return similarity_list
 
-# Function to assign MTC reviewers
-def assign_mtc_reviewers(idea_topics: List[str], reviewers: List[Reviewer]) -> List[int]:
+# Function to assign reviewers
+def assign_reviewers(idea_topics: List[str], reviewers: List[Reviewer], reviewer_type: str) -> List[int]:
     similarities = compute_similarity_with_topics(idea_topics, reviewers)
     similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
-    mtc_reviewers = [sim["reviewer_id"] for sim in similarities_sorted if reviewers[sim["reviewer_id"]].reviewer_type == "MTC"]
-    return mtc_reviewers[:2]  # Select top 2 MTC reviewers
-
-# Function to assign E2 reviewers
-def assign_e2_reviewers(idea_topics: List[str], reviewers: List[Reviewer]) -> List[int]:
-    similarities = compute_similarity_with_topics(idea_topics, reviewers)
-    similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
-    e2_reviewers = [sim["reviewer_id"] for sim in similarities_sorted if reviewers[sim["reviewer_id"]].reviewer_type == "E2"]
-    return e2_reviewers[:2]  # Select top 2 E2 reviewers
+    assigned_reviewers = []
+    for sim in similarities_sorted:
+        reviewer = next((r for r in reviewers if r.id == sim["reviewer_id"]), None)
+        if reviewer and reviewer.reviewer_type.lower() == reviewer_type.lower() and reviewer.status.lower() == "available":
+            assigned_reviewers.append(reviewer.id)
+            if len(assigned_reviewers) >= 2:
+                break
+    return assigned_reviewers
 
 # Endpoint to get similar abstracts
 @router.post("/search", response_model=SearchResponse)
@@ -126,8 +126,8 @@ def assign_mtc(request: SearchRequest):
     idea_topics = embedding_model.extract_topics([request.input_abstract])
     reviewers_data = load_data(DATA_PATH_REVIEWERS)
     reviewers = [Reviewer(**rev) for rev in reviewers_data]
-    assigned_mtc_reviewers = assign_mtc_reviewers(idea_topics, reviewers)
-    return {"reviewer_ids": assigned_mtc_reviewers}
+    assigned_mtc_reviewers = assign_reviewers(idea_topics, reviewers, reviewer_type="MTC")
+    return {"reviewer_ids_mtc": assigned_mtc_reviewers}
 
 # Endpoint to assign E2 reviewers
 @router.post("/assign/e2", response_model=Assignment)
@@ -135,5 +135,5 @@ def assign_e2(request: SearchRequest):
     idea_topics = embedding_model.extract_topics([request.input_abstract])
     reviewers_data = load_data(DATA_PATH_REVIEWERS)
     reviewers = [Reviewer(**rev) for rev in reviewers_data]
-    assigned_e2_reviewers = assign_e2_reviewers(idea_topics, reviewers)
-    return {"reviewer_ids": assigned_e2_reviewers}
+    assigned_e2_reviewers = assign_reviewers(idea_topics, reviewers, reviewer_type="E2")
+    return {"reviewer_ids_e2": assigned_e2_reviewers}
