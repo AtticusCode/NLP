@@ -1,5 +1,3 @@
-# app/api.py
-
 from fastapi import APIRouter, HTTPException
 from typing import List
 from .models import (
@@ -18,13 +16,7 @@ import logging
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
-from rake_nltk import Rake  # Import RAKE
-
-import nltk
-nltk.download('stopwords')
-
-# Initialize RAKE for keyword extraction
-rake = Rake()
+import yake  # Import YAKE
 
 router = APIRouter()
 
@@ -66,12 +58,22 @@ topic_embeddings = embedding_model.get_topic_embeddings(topics)
 # Initialize matcher with topic embeddings
 matcher = AbstractMatcher(ideas, topic_embeddings, embedding_model)
 
-# Function to extract technologies using RAKE
+# Function to extract technologies using YAKE
 def extract_technologies_semantic(text: str) -> List[str]:
-    rake.extract_keywords_from_text(text)
-    keywords = rake.get_ranked_phrases()
-    # Optionally, limit to top N keywords
-    return keywords[:10]  # Adjust the number as needed
+    language = "en"
+    max_ngram_size = 3  # Adjust this as needed
+    deduplication_threshold = 0.9
+    num_of_keywords = 10  # Adjust the number of keywords
+
+    custom_kw_extractor = yake.KeywordExtractor(
+        lan=language, 
+        n=max_ngram_size, 
+        dedupLim=deduplication_threshold, 
+        top=num_of_keywords
+    )
+    keywords = custom_kw_extractor.extract_keywords(text)
+    extracted_keywords = [kw[0] for kw in keywords]  # Extract only the keywords
+    return extracted_keywords
 
 # Function to compute similarity between idea topics and reviewer expertise
 def compute_similarity_with_topics(idea_topics: List[str], reviewers: List[Reviewer]) -> List[dict]:
@@ -159,7 +161,7 @@ def add_idea(idea: Idea):
     # Combine problem and solution to form the abstract
     combined_text = f"{idea.problem} {idea.solution}"
     
-    # Extract technologies using RAKE
+    # Extract technologies using YAKE
     extracted_technologies = extract_technologies_semantic(combined_text)
     idea.technology = extracted_technologies
     logger.info(f"Extracted technologies: {idea.technology}")
@@ -216,198 +218,3 @@ def add_idea(idea: Idea):
             logger.info(f"Updated status of assigned MTC reviewers to 'busy'")
     
     return idea
-
-# Assignment Endpoints
-@router.get("/assignments", response_model=List[Assignment])
-def get_assignments():
-    assignments_data = load_data(DATA_PATH_ASSIGNMENTS)
-    return [Assignment(**assign) for assign in assignments_data]
-
-# Endpoint to Assign MTC Reviewers Separately (Mandatory)
-@router.post("/assignments/mtc", response_model=Assignment)
-def assign_mtc_reviewers(idea_id: int):
-    logger.info(f"Assigning MTC reviewers for Idea ID {idea_id}")
-    # Load necessary data
-    ideas_data = load_data(DATA_PATH_ABSTRACTS)
-    idea = next((item for item in ideas_data if item["id"] == idea_id), None)
-    if not idea:
-        logger.error(f"Idea with ID {idea_id} not found.")
-        raise HTTPException(status_code=404, detail="Idea not found.")
-    
-    if idea["status"].lower() != "submitted":
-        logger.error(f"Idea ID {idea_id} is not in 'submitted' status.")
-        raise HTTPException(status_code=400, detail="Only submitted ideas can be assigned MTC reviewers.")
-    
-    reviewers_data = load_data(DATA_PATH_REVIEWERS)
-    reviewers = [Reviewer(**rev) for rev in reviewers_data]
-    
-    assignments_data = load_data(DATA_PATH_ASSIGNMENTS)
-    assignments = [Assignment(**assign) for assign in assignments_data]
-    
-    # Create Idea model instance
-    idea_model = Idea(**idea)
-    
-    # Compute similarity scores based on topics
-    similarities = compute_similarity_with_topics([f"{idea_model.problem} {idea_model.solution}"], reviewers)
-    
-    # Sort reviewers by similarity in descending order
-    similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
-    
-    # Select top K MTC reviewers
-    top_k = 2
-    assigned_mtc_reviewers = []
-    for sim in similarities_sorted:
-        reviewer = next((r for r in reviewers if r.id == sim["reviewer_id"]), None)
-        if reviewer and reviewer.reviewer_type.lower() == "mtc" and reviewer.status.lower() == "available":
-            assigned_mtc_reviewers.append(reviewer.id)
-            if len(assigned_mtc_reviewers) >= top_k:
-                break
-    
-    logger.info(f"Assigned MTC Reviewer IDs: {assigned_mtc_reviewers}")
-    
-    if not assigned_mtc_reviewers:
-        logger.error("No available MTC reviewers found.")
-        raise HTTPException(status_code=400, detail="No available MTC reviewers found.")
-    
-    # Create and save assignment
-    new_assignment = create_assignment(idea_model.id, assigned_mtc_reviewers, [], assignments)
-    assignments_data.append(new_assignment.dict())
-    save_data(DATA_PATH_ASSIGNMENTS, assignments_data)
-    logger.info(f"Created new assignment ID {new_assignment.assignment_id} for Idea ID {idea_model.id} with MTC reviewers {assigned_mtc_reviewers}")
-    
-    # Update reviewers' status to 'busy'
-    for reviewer in reviewers:
-        if reviewer.id in assigned_mtc_reviewers:
-            for rev in reviewers_data:
-                if rev["id"] == reviewer.id:
-                    rev["status"] = "busy"
-    save_data(DATA_PATH_REVIEWERS, reviewers_data)
-    logger.info(f"Updated status of assigned MTC reviewers to 'busy'")
-    
-    return new_assignment
-
-# Endpoint to Assign Patent Reviewers Separately (Mandatory)
-@router.post("/assignments/patent", response_model=Assignment)
-def assign_patent_reviewers(idea_id: int):
-    logger.info(f"Assigning Patent reviewers for Idea ID {idea_id}")
-    # Load necessary data
-    ideas_data = load_data(DATA_PATH_ABSTRACTS)
-    idea = next((item for item in ideas_data if item["id"] == idea_id), None)
-    if not idea:
-        logger.error(f"Idea with ID {idea_id} not found.")
-        raise HTTPException(status_code=404, detail="Idea not found.")
-    
-    if idea["status"].lower() != "submitted":
-        logger.error(f"Idea ID {idea_id} is not in 'submitted' status.")
-        raise HTTPException(status_code=400, detail="Only submitted ideas can be assigned Patent reviewers.")
-    
-    reviewers_data = load_data(DATA_PATH_REVIEWERS)
-    reviewers = [Reviewer(**rev) for rev in reviewers_data]
-    
-    assignments_data = load_data(DATA_PATH_ASSIGNMENTS)
-    assignments = [Assignment(**assign) for assign in assignments_data]
-    
-    # Create Idea model instance
-    idea_model = Idea(**idea)
-    
-    # Compute similarity scores based on topics
-    similarities = compute_similarity_with_topics([f"{idea_model.problem} {idea_model.solution}"], reviewers)
-    
-    # Sort reviewers by similarity in descending order
-    similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
-    
-    # Select top K Patent reviewers
-    top_k = 2
-    assigned_patent_reviewers = []
-    for sim in similarities_sorted:
-        reviewer = next((r for r in reviewers if r.id == sim["reviewer_id"]), None)
-        if reviewer and reviewer.reviewer_type.lower() == "patent" and reviewer.status.lower() == "available":
-            assigned_patent_reviewers.append(reviewer.id)
-            if len(assigned_patent_reviewers) >= top_k:
-                break
-    
-    logger.info(f"Assigned Patent Reviewer IDs: {assigned_patent_reviewers}")
-    
-    if not assigned_patent_reviewers:
-        logger.error("No available Patent reviewers found.")
-        raise HTTPException(status_code=400, detail="No available Patent reviewers found.")
-    
-    # Create and save assignment
-    new_assignment = create_assignment(idea_model.id, [], assigned_patent_reviewers, assignments)
-    assignments_data.append(new_assignment.dict())
-    save_data(DATA_PATH_ASSIGNMENTS, assignments_data)
-    logger.info(f"Created new assignment ID {new_assignment.assignment_id} for Idea ID {idea_model.id} with Patent reviewers {assigned_patent_reviewers}")
-    
-    # Update reviewers' status to 'busy'
-    for reviewer in reviewers:
-        if reviewer.id in assigned_patent_reviewers:
-            for rev in reviewers_data:
-                if rev["id"] == reviewer.id:
-                    rev["status"] = "busy"
-    save_data(DATA_PATH_REVIEWERS, reviewers_data)
-    logger.info(f"Updated status of assigned Patent reviewers to 'busy'")
-    
-    return new_assignment
-
-# Additional Endpoint: Assign E2 Reviewers (Assuming E2 is another reviewer type)
-@router.post("/assignments/e2", response_model=Assignment)
-def assign_e2_reviewers(idea_id: int):
-    logger.info(f"Assigning E2 reviewers for Idea ID {idea_id}")
-    # Load necessary data
-    ideas_data = load_data(DATA_PATH_ABSTRACTS)
-    idea = next((item for item in ideas_data if item["id"] == idea_id), None)
-    if not idea:
-        logger.error(f"Idea with ID {idea_id} not found.")
-        raise HTTPException(status_code=404, detail="Idea not found.")
-    
-    if idea["status"].lower() != "submitted":
-        logger.error(f"Idea ID {idea_id} is not in 'submitted' status.")
-        raise HTTPException(status_code=400, detail="Only submitted ideas can be assigned E2 reviewers.")
-    
-    reviewers_data = load_data(DATA_PATH_REVIEWERS)
-    reviewers = [Reviewer(**rev) for rev in reviewers_data]
-    
-    assignments_data = load_data(DATA_PATH_ASSIGNMENTS)
-    assignments = [Assignment(**assign) for assign in assignments_data]
-    
-    # Create Idea model instance
-    idea_model = Idea(**idea)
-    
-    # Compute similarity scores based on topics
-    similarities = compute_similarity_with_topics([f"{idea_model.problem} {idea_model.solution}"], reviewers)
-    
-    # Sort reviewers by similarity in descending order
-    similarities_sorted = sorted(similarities, key=lambda x: x["similarity"], reverse=True)
-    
-    # Select top K E2 reviewers
-    top_k = 2
-    assigned_e2_reviewers = []
-    for sim in similarities_sorted:
-        reviewer = next((r for r in reviewers if r.id == sim["reviewer_id"]), None)
-        if reviewer and reviewer.reviewer_type.lower() == "e2" and reviewer.status.lower() == "available":
-            assigned_e2_reviewers.append(reviewer.id)
-            if len(assigned_e2_reviewers) >= top_k:
-                break
-    
-    logger.info(f"Assigned E2 Reviewer IDs: {assigned_e2_reviewers}")
-    
-    if not assigned_e2_reviewers:
-        logger.error("No available E2 reviewers found.")
-        raise HTTPException(status_code=400, detail="No available E2 reviewers found.")
-    
-    # Create and save assignment
-    new_assignment = create_assignment(idea_model.id, [], assigned_e2_reviewers, assignments)
-    assignments_data.append(new_assignment.dict())
-    save_data(DATA_PATH_ASSIGNMENTS, assignments_data)
-    logger.info(f"Created new assignment ID {new_assignment.assignment_id} for Idea ID {idea_model.id} with E2 reviewers {assigned_e2_reviewers}")
-    
-    # Update reviewers' status to 'busy'
-    for reviewer in reviewers:
-        if reviewer.id in assigned_e2_reviewers:
-            for rev in reviewers_data:
-                if rev["id"] == reviewer.id:
-                    rev["status"] = "busy"
-    save_data(DATA_PATH_REVIEWERS, reviewers_data)
-    logger.info(f"Updated status of assigned E2 reviewers to 'busy'")
-    
-    return new_assignment
