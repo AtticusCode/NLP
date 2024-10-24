@@ -1,0 +1,165 @@
+[
+    {
+        "id": 1,
+        "title": "AI-Powered Credit Scoring System",
+        "problem": "Traditional credit scoring methods lack accuracy and do not consider alternative data sources.",
+        "solution": "Implement an AI-driven credit scoring system that uses machine learning models to evaluate borrowers' creditworthiness based on both traditional financial data and alternative data sources, such as social media behavior and utility bill payments.",
+        "team_suggesting": "Finance Team A",
+        "file_type": "pdf",
+        "sid": "S001",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Python",
+            "Data Science"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 2,
+        "title": "Blockchain-Based Cross-Border Payment System",
+        "problem": "Cross-border transactions are slow and costly due to intermediaries.",
+        "solution": "Develop a decentralized payment system leveraging blockchain technology to enable faster, cheaper, and more transparent cross-border transactions, utilizing smart contracts for settlement.",
+        "team_suggesting": "Finance Team B",
+        "file_type": "docx",
+        "sid": "S002",
+        "technology": [
+            "Blockchain",
+            "FinTech",
+            "Java",
+            "Cybersecurity"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 3,
+        "title": "Automated Financial Portfolio Management",
+        "problem": "Manual portfolio management is inefficient and cannot scale with increasing data.",
+        "solution": "Create an AI-driven portfolio management system that dynamically adjusts asset allocations based on market trends and user preferences, utilizing quantitative analysis and real-time data integration.",
+        "team_suggesting": "Finance Team C",
+        "file_type": "pdf",
+        "sid": "S003",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Data Science"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 4,
+        "title": "Real-Time Fraud Detection in Banking",
+        "problem": "Fraudulent activities in banking transactions are difficult to detect in real-time using traditional methods.",
+        "solution": "Implement a real-time fraud detection system that applies machine learning techniques to analyze transaction patterns, detect anomalies, and reduce false positives, thereby enhancing fraud prevention measures.",
+        "team_suggesting": "Finance Team D",
+        "file_type": "pdf",
+        "sid": "S004",
+        "technology": [
+            "AI",
+            "Machine Learning",
+            "Cybersecurity"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 5,
+        "title": "Decentralized Finance (DeFi) Lending Platform",
+        "problem": "Traditional lending platforms rely heavily on intermediaries, leading to higher costs and slower processing times.",
+        "solution": "Develop a decentralized lending platform using blockchain technology that enables peer-to-peer lending and borrowing of digital assets without the need for intermediaries, utilizing smart contracts to automate loan agreements and settlements.",
+        "team_suggesting": "Finance Team E",
+        "file_type": "docx",
+        "sid": "S005",
+        "technology": [
+            "Blockchain",
+            "FinTech",
+            "Java"
+        ],
+        "status": "granted"
+    },
+    {
+        "id": 19,
+        "title": "AI-Based Loan Approval System",
+        "problem": "Manual loan approval processes are time-consuming and prone to bias.",
+        "solution": "Develop an AI system that automates loan approvals by analyzing financial data and reducing human bias.",
+        "team_suggesting": "Finance Team F",
+        "file_type": "pdf",
+        "sid": "S006",
+        "technology": [
+            "ai",
+            "approvals",
+            "loan",
+            "bias",
+            "approval",
+            "system",
+            "data",
+            "time",
+            "processes"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 20,
+        "title": "AI-Based Loan Approval System",
+        "problem": "Manual loan approval processes are time-consuming and prone to bias.",
+        "solution": "Develop an AI system that automates loan approvals by analyzing financial data and reducing human bias.",
+        "team_suggesting": "Finance Team F",
+        "file_type": "pdf",
+        "sid": "S019",
+        "technology": [
+            "manual loan approval processes",
+            "automates loan approvals",
+            "analyzing financial data",
+            "reducing human bias",
+            "ai system",
+            "bias",
+            "time",
+            "prone",
+            "develop",
+            "consuming"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 21,
+        "title": "AI-Based Loan Approval System",
+        "problem": "Manual loan approval processes are time-consuming and prone to bias.",
+        "solution": "Develop an AI system that automates loan approvals by analyzing financial data and reducing human bias.",
+        "team_suggesting": "Finance Team F",
+        "file_type": "pdf",
+        "sid": "S019",
+        "technology": [
+            "human bias",
+            "develop",
+            "an ai system",
+            "that",
+            "financial data",
+            "bias",
+            "loan approvals",
+            "manual loan approval processes"
+        ],
+        "status": "submitted"
+    },
+    {
+        "id": 22,
+        "title": "Blockchain-Based Secure Voting System",
+        "problem": "Traditional voting systems are vulnerable to fraud, tampering, and lack transparency, undermining public trust.",
+        "solution": "Develop a blockchain-based voting platform that ensures end-to-end verifiability, immutability of votes, and enhanced security to prevent fraud and tampering.",
+        "team_suggesting": "Security Innovations Team",
+        "file_type": "pdf",
+        "sid": "S022",
+        "technology": [
+            "transparency",
+            "public trust",
+            "security",
+            "a blockchain-based voting platform",
+            "that",
+            "traditional voting systems",
+            "votes",
+            "tampering",
+            "fraud",
+            "end",
+            "immutability"
+        ],
+        "status": "submitted"
+    }
+]

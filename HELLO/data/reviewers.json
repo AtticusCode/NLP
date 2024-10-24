@@ -1,0 +1,100 @@
+[
+    {
+        "id": 101,
+        "name": "Alice Johnson",
+        "expertise": [
+            "AI",
+            "Machine Learning",
+            "Python",
+            "Data Science"
+        ],
+        "reviewer_type": "MTC",
+        "patent_review": true,
+        "technological_review": true,
+        "status": "busy"
+    },
+    {
+        "id": 102,
+        "name": "Bob Williams",
+        "expertise": [
+            "Blockchain",
+            "FinTech",
+            "Java",
+            "Cybersecurity"
+        ],
+        "reviewer_type": "Patent",
+        "patent_review": true,
+        "technological_review": false,
+        "status": "available"
+    },
+    {
+        "id": 103,
+        "name": "Charlie Brown",
+        "expertise": [
+            "Cybersecurity",
+            "AI",
+            "Data Science",
+            "Java"
+        ],
+        "reviewer_type": "MTC",
+        "patent_review": false,
+        "technological_review": true,
+        "status": "busy"
+    },
+    {
+        "id": 104,
+        "name": "Diana Prince",
+        "expertise": [
+            "Data Science",
+            "Big Data",
+            "Python",
+            "AI"
+        ],
+        "reviewer_type": "MTC",
+        "patent_review": true,
+        "technological_review": true,
+        "status": "busy"
+    },
+    {
+        "id": 105,
+        "name": "Ethan Hunt",
+        "expertise": [
+            "Java",
+            "Blockchain",
+            "Cybersecurity",
+            "AI"
+        ],
+        "reviewer_type": "Patent",
+        "patent_review": true,
+        "technological_review": false,
+        "status": "available"
+    },
+    {
+        "id": 106,
+        "name": "Fiona Gallagher",
+        "expertise": [
+            "AI",
+            "NLP",
+            "Machine Learning",
+            "Data Science"
+        ],
+        "reviewer_type": "Patent",
+        "patent_review": true,
+        "technological_review": false,
+        "status": "available"
+    },
+    {
+        "id": 107,
+        "name": "Grace Hopper",
+        "expertise": [
+            "Blockchain",
+            "Cybersecurity",
+            "Distributed Systems",
+            "Smart Contracts"
+        ],
+        "reviewer_type": "MTC",
+        "patent_review": false,
+        "technological_review": true,
+        "status": "busy"
+    }
+]

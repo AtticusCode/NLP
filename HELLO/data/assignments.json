@@ -1,0 +1,24 @@
+[
+    {
+        "assignment_id": 1001,
+        "idea_id": 21,
+        "reviewer_ids_mtc": [
+            101,
+            104
+        ],
+        "reviewer_ids_patent": [],
+        "status": "assigned",
+        "comments": ""
+    },
+    {
+        "assignment_id": 1002,
+        "idea_id": 22,
+        "reviewer_ids_mtc": [
+            107,
+            103
+        ],
+        "reviewer_ids_patent": [],
+        "status": "assigned",
+        "comments": ""
+    }
+]
